@@ -1,0 +1,10 @@
+df = pd.read_csv("//content//drive//MyDrive//train_energy_data2.csv")
+df
+plt.scatter(df.Appliances_Used, df.Energy_Consumption)
+lr = linear_model.LinearRegression()
+lr.fit(df[["Appliances_Used"]], df.Energy_Consumption)
+lr.predict([[87]])
+lr.score(df[["Appliances_Used"]], df.Energy_Consumption)
+lr.coef_
+lr.intercept_
+plt.plot(df.Appliances_Used, lr.predict(df[["Appliances_Used"]]), color = "red")
