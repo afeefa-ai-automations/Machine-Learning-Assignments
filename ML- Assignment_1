@@ -1,5 +1,8 @@
 df = pd.read_csv("//content//drive//MyDrive//train_energy_data2.csv")
 df
+plt.xlabel("Appliances Used", color="red", fontweight= "bold", size = 16)
+plt.ylabel("Energy Consumption", color="red", fontweight= "bold", size = 16)
+plt.title("Appliances Used vs Energy Consumption", fontweight= "bold", size = 16)
 plt.scatter(df.Appliances_Used, df.Energy_Consumption)
 lr = linear_model.LinearRegression()
 lr.fit(df[["Appliances_Used"]], df.Energy_Consumption)
