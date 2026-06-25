@@ -1,0 +1,117 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+df = pd.read_csv('student_mental_health_burnout_1M.csv')
+print(df)
+no_null = df.isnull().sum()
+print(no_null)
+df['gender'] = df['gender'].astype('category')
+df['gender'] = df['gender'].cat.codes
+df.drop(columns = 'risk_level', inplace = True)
+print(df)
+
+# _______Burnout Prediction-----------
+x = df[['gender', 'study_hours_per_day','exam_pressure','academic_performance','stress_level',
+        'anxiety_score', 'depression_score','sleep_hours', 'physical_activity', 'social_support', 'screen_time',
+        'internet_usage', 'financial_stress', 'family_expectation' ]]
+
+y = df['burnout_score']
+x_train, x_test, y_train, y_test = train_test_split(x,y, test_size= 0.3, random_state= 50)
+burnout_prediction = linear_model.LinearRegression()
+burnout_prediction.fit(x_train, y_train)
+score = burnout_prediction.score(x_train, y_train)
+print(score)
+test = burnout_prediction.predict(x_test)
+print(test)
+m = burnout_prediction.coef_
+print(m)
+c = burnout_prediction.intercept_
+print(c)
+y_pred_train = burnout_prediction.predict(x_train)
+y_pred_test = burnout_prediction.predict(x_test)
+mse = mean_squared_error(y_test, y_pred_test)
+print(mse)
+r2 = r2_score(y_test, y_pred_test)
+print(r2)
+print(y_pred_train)
+plt.title("Study of Burnouts in Students", fontweight='bold')
+plt.xlabel("Factors Affecting Students", color = "red", fontweight = 'bold')
+plt.ylabel("Predicted Burnout", color = "red", fontweight='bold')
+plt.scatter(y_test, y_pred_test, color = 'magenta')
+plt.plot([y_test.min(), y_test.max()],[y_test.min(), y_test.max()],  color ='blue')
+plt.legend()
+plt.show()
+
+#____________MHI Prediction_______________
+x = df[['gender', 'study_hours_per_day','exam_pressure','academic_performance','stress_level',
+        'anxiety_score', 'depression_score','sleep_hours', 'physical_activity', 'social_support', 'screen_time',
+        'internet_usage', 'financial_stress', 'family_expectation', 'burnout_score' ]]
+y = df['mental_health_index']
+x_train, x_test, y_train,y_test = train_test_split(x,y, test_size = 0.4, random_state= 44)
+MHI_prediction = linear_model.LinearRegression()
+MHI_prediction.fit(x_train, y_train)
+score = MHI_prediction.score(x_train, y_train)
+print(score)
+test = MHI_prediction.predict(x_test)
+print(test)
+m = MHI_prediction.coef_
+print(m)
+c = MHI_prediction.intercept_
+print(c)
+y_pred_train = MHI_prediction.predict(x_train)
+print(y_pred_train)
+y_pred_test = MHI_prediction.predict(x_test)
+mse = mean_squared_error(y_test, y_pred_test)
+print(mse)
+r2 = r2_score(y_test, y_pred_test)
+print(r2)
+plt.title('Mental Health Index Prediction', color='black', fontweight='bold')
+plt.xlabel("Factors Affecting Student's Performance", color = 'red', fontweight= 'bold')
+plt.ylabel('Predicted MHI', color='red', fontweight='bold')
+plt.scatter(y_train, y_pred_train)
+plt.plot([y_pred_train.min(),y_pred_train.max()], [y_pred_train.min(),y_pred_train.max()], color = 'yellow')
+plt.legend()
+plt.show()
+
+#__________Drop Out Risk------------
+
+x = df[['gender', 'study_hours_per_day','exam_pressure','academic_performance','stress_level',
+        'anxiety_score', 'depression_score','sleep_hours', 'physical_activity', 'social_support', 'screen_time',
+        'internet_usage', 'financial_stress', 'family_expectation', 'burnout_score', 'mental_health_index' ]]
+y = df['dropout_risk']
+x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.3, random_state=36)
+
+dr_prediction = linear_model.LinearRegression()
+dr_prediction.fit(x_train, y_train)
+score = dr_prediction.score(x_train, y_train)
+print("Score is:", score)
+test = dr_prediction.predict(x_test)
+print(test)
+m = dr_prediction.coef_
+print("Coefficient is:", m)
+c = dr_prediction.intercept_
+print("Intercept is:", c)
+
+y_pred_train = dr_prediction.predict(x_train)
+print(y_pred_train)
+y_pred_test = dr_prediction.predict(x_test)
+print(y_pred_test)
+mse = mean_squared_error(y_test, y_pred_test)
+print("MSE is:", mse)
+r2 = r2_score(y_test, y_pred_test)
+print("R2 Score is:", r2)
+plt.title('Dropout Risk Prediction', color='black', fontweight='bold')
+plt.xlabel("Factors Affecting Student's Performance", color = 'red', fontweight= 'bold')
+plt.ylabel('Predicted Dropout Risk', color='red', fontweight='bold')
+
+plt.scatter(y_train, y_pred_train)
+plt.plot([y_pred_train.min(),y_pred_train.max()], [y_pred_train.min(),y_pred_train.max()], color = 'red')
+plt.legend()
+plt.show()
+
+custom_input = pd.DataFrame([[20,0,2,5.5,6.4,50.3, 3.1, 6.9, 2.0, 5.5,4.9,5.4,3.9,6.3, 4.3, 8.8]])
+prediction = dr_prediction.predict(custom_input)
+print(prediction)
