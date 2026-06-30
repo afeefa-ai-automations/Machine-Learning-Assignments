@@ -1,0 +1,75 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score, classification_report
+
+
+df = pd.read_csv('avocado_ripeness_dataset.csv')
+print(df.isnull().sum())
+pd.set_option("display.max_columns", None)
+df['color_category'] = df['color_category'].astype('category')
+df['color_category'] = df['color_category'].cat.codes
+
+df['ripeness'] = df['ripeness'].astype('category')
+df['ripeness'] = df['ripeness'].cat.codes
+
+X = df[['firmness','hue','saturation','brightness','color_category','sound_db','weight_g','size_cm3']]
+y = df['ripeness']
+
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.25, random_state = 7)
+
+classifier = LogisticRegression()
+
+parameters = {'penalty': ['l1','l2','elasticnet'],
+              'C': [1,2,3,4,5,6,10,20,40,50,60,70,80,90],
+              'max_iter': [100,200,300,400,500]}
+
+log_class = GridSearchCV(classifier, parameters, scoring = 'accuracy', cv = 10)
+
+log_class.fit(X_train, y_train)
+print(log_class.best_score_)
+print(log_class.best_params_)
+
+y_pred = log_class.predict(X_test)
+
+print("Accuracy Score:",accuracy_score(y_test, y_pred))
+print("Classification Report:",classification_report(y_test, y_pred))
+print("Correlation:", df.corr())
+
+#--------pairplot-----------
+sns.pairplot(df, hue='ripeness')
+
+ #----------confusion matrix-----------
+from sklearn.metrics import confusion_matrix
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(6,5))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues'
+)
+
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+
+#--------------Jittered actual vs. predicted scatter-----------------
+plt.figure(figsize=(8,6))
+
+
+x = y_test + np.random.normal(0,0.05, len(y_test))
+y = y_pred + np.random.normal(0,0.05, len(y_pred))
+
+plt.scatter( x,y, alpha = 0.5)
+
+plt.xlabel("Actual Values")
+plt.ylabel("Predicted Values")
+plt.title("Actual vs Predicted Avocado Ripeness")
+
+plt.show()
